@@ -2,99 +2,143 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Love Heart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ultimate Love Experience</title>
     <style>
         body {
             margin: 0;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #1a1a1a;
-            cursor: pointer;
+            background: linear-gradient(-45deg, #ff6b6b, #ff8e8e, #ffb3b3);
+            animation: bg-pulse 15s infinite;
+            touch-action: manipulation;
+            overflow: hidden;
+        }
+
+        .heart-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .heart {
-            width: 100px;
-            height: 100px;
-            background-color: #ff3366;
-            position: relative;
-            transform: rotate(-45deg);
-            animation: pulse 1.5s infinite;
-            box-shadow: 0 0 40px #ff336699;
+            width: 60vw;
+            height: 60vw;
+            background: #ff3366;
+            clip-path: polygon(50% 15%, 70% 5%, 85% 20%, 90% 40%, 80% 60%, 50% 90%, 20% 60%, 10% 40%, 15% 20%, 30% 5%);
+            animation: heartbeat 1.5s infinite;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .heart::before,
-        .heart::after {
-            content: '';
-            width: 100px;
-            height: 100px;
-            background-color: #ff3366;
-            border-radius: 50%;
-            position: absolute;
+        .message {
+            position: fixed;
+            top: 20%;
+            width: 80%;
+            left: 10%;
+            padding: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            text-align: center;
+            font-family: cursive;
+            color: #ff3366;
+            display: none;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
 
-        .heart::before {
-            top: -50px;
-            left: 0;
+        .particles {
+            position: fixed;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
         }
 
-        .heart::after {
-            left: 50px;
-            top: 0;
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
         }
 
-        @keyframes pulse {
-            0% { transform: rotate(-45deg) scale(1); }
-            50% { transform: rotate(-45deg) scale(1.2); }
-            100% { transform: rotate(-45deg) scale(1); }
-        }
-
-        .ripple {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            border: 4px solid #ff3366;
-            border-radius: 50%;
-            animation: ripple-effect 1s;
-        }
-
-        @keyframes ripple-effect {
-            from { transform: scale(0); opacity: 1; }
-            to { transform: scale(3); opacity: 0; }
+        @keyframes bg-pulse {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
     </style>
 </head>
 <body>
-    <div class="heart"></div>
+    <div class="message">My Love for You Grows Stronger Every Day 💖</div>
+    <div class="heart-container">
+        <div class="heart"></div>
+    </div>
+    <div class="particles"></div>
+
+    <audio id="sound">
+        <source src="https://assets.mixkit.co/active_storage/sfx/257/257-preview.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
-        const heart = document.querySelector('.heart');
-        const body = document.body;
+        const messages = [
+            "7abibiii ya a8la ma3ndi rabi y7f4k liya 😭💞",
+            "3omry w 7yeti bkolha t3adew 3 chhour fi ramcht 3in 😭",
+            "7obi ya bayoutiiiiiii ahhh mn 3iniiiiik 😭😭💗",
+            "Bayoutiiiiiii el amira dyeli ya nour 3iniya a55555 w9teh n3rsooo 😭😭😭😭 (wlit nbki hna)",
+            "Bayoutiiiiiii ya 3ch9iiii nmouuut 3likkkkk 😭😭😭💗💍"
+        ];
 
-        function createRipple(event) {
-            const ripple = document.createElement('div');
-            ripple.className = 'ripple';
+        const heart = document.querySelector('.heart');
+        const messageDiv = document.querySelector('.message');
+        const particlesDiv = document.querySelector('.particles');
+        const sound = document.getElementById('sound');
+
+        // Mobile Touch Events
+        heart.addEventListener('touchstart', handleInteraction);
+        heart.addEventListener('click', handleInteraction);
+
+        function handleInteraction(e) {
+            e.preventDefault();
             
-            const rect = heart.getBoundingClientRect();
-            ripple.style.left = `${event.clientX - rect.left - 50}px`;
-            ripple.style.top = `${event.clientY - rect.top - 50}px`;
+            // Sound Effect
+            sound.currentTime = 0;
+            sound.play();
+
+            // Color Change
+            heart.style.background = `hsl(${Math.random()*360}, 70%, 60%)`;
             
-            heart.appendChild(ripple);
-            
-            setTimeout(() => ripple.remove(), 1000);
+            // Message Popup
+            messageDiv.textContent = messages[Math.floor(Math.random()*messages.length)];
+            messageDiv.style.display = 'block';
+            setTimeout(() => messageDiv.style.display = 'none', 2000);
+
+            // Create Particles
+            createParticles(e.clientX || e.touches[0].clientX, 
+                          e.clientY || e.touches[0].clientY);
         }
 
-        // Click/Touch interactions
-        heart.addEventListener('click', createRipple);
-        heart.addEventListener('touchstart', createRipple);
+        function createParticles(x, y) {
+            for(let i=0; i<10; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    left: ${x}px;
+                    top: ${y}px;
+                    width: 10px;
+                    height: 10px;
+                    background: ${getRandomColor()};
+                    border-radius: 50%;
+                    animation: particle 1s forwards;
+                `;
 
-        // Double-click handler
-        heart.addEventListener('dblclick', () => {
-            heart.style.animation = 'none';
-            setTimeout(() => heart.style.animation = 'pulse 1.5s infinite', 50);
-            heart.style.transform = 'rotate(-45deg) scale(1.5)';
+                particlesDiv.appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        function getRandomColor() {
+            return `hsl(${Math.random()*360}, 70%, 60%)`;
+        }
+
+        // Mobile Orientation Handling
+        window.addEventListener("orientationchange", () => {
+            window.location.reload();
         });
     </script>
 </body>
