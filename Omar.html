@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omar Photos Gallery</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap" />
+  <style>
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    body{
+      background-color: #700909;
+    }
+    
+    .omar-image {
+      display: flex;
+      min-height: 10vh;
+      width: 200px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .omar-image:hover {
+      transform: scale(1.05);
+    }
+            
+    .omar-image img {
+      border-radius: 10px;
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Lightbox styles */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .lightbox.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .lightbox-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      animation: fadeIn 0.5s;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="gallery">
+    <div class="omar-image">
+      <img src="omar1.jpg" alt="Omar 1" class="gallery-img" />
+    </div>
+    <div class="omar-image">
+      <img src="omar2.jpg" alt="Omar 2" class="gallery-img" />
+    </div>
+    <div class="omar-image">
+      <img src="omar3.jpg" alt="Omar 3" class="gallery-img" />
+    </div>
+    <div class="omar-image">
+      <img src="omar4.jpg" alt="Omar 4" class="gallery-img" />
+    </div>
+    <div class="omar-image">
+      <img src="omar5.jpg" alt="Omar 5" class="gallery-img" />
+    </div>
+    <div class="omar-image">
+      <img src="omar6.jpg" alt="Omar 6" class="gallery-img" />
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="close-btn">&times;</span>
+    <img class="lightbox-img" id="lightbox-img">
+  </div>
+
+  <script>
+    // Get all gallery images and lightbox elements
+    const galleryImages = document.querySelectorAll('.gallery-img');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const closeBtn = document.querySelector('.close-btn');
+
+    // Add click event to each gallery image
+    galleryImages.forEach(image => {
+      image.addEventListener('click', () => {
+        lightbox.classList.add('active');
+        lightboxImg.src = image.src;
+        lightboxImg.alt = image.alt;
+      });
+    });
+
+    // Close lightbox when clicking X
+    closeBtn.addEventListener('click', () => {
+      lightbox.classList.remove('active');
+    });
+
+    // Close lightbox when clicking outside image
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.classList.remove('active');
+      }
+    });
+
+    // Close lightbox with ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+        lightbox.classList.remove('active');
+      }
+    });
+  </script>
+</body>
+
+</html>

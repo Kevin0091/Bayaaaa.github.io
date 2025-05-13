@@ -1,0 +1,86 @@
+body{
+  background-color:#700909;
+  display: grid;
+  place-items: center;
+}
+
+select{
+  background-color:black;
+  color: black;
+  box-shadow: 0 0 10px red;
+  transition: box-shadow 0.3s ease;
+}
+
+.menu{
+  border: none;
+  border-radius: 30px;
+  padding: 10px 10px;
+  top: 3vw;
+  left: 3vw;
+  display: flex;
+  align-content: vertical;
+  width: 360px;
+  height: 40px;
+  color: gray;
+  font-family: "Inter", sans-serif;
+  font-style: italic;
+}
+
+.custom{
+  width: 60px;
+  height: 60px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  background-color: #ff0000;
+  color: #000000;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px #ff6666;
+  transition: box-shadow 0.3s ease;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+.custom i {
+  font-size: 24px;
+}
+
+.text1{
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-style: italic;
+  text-shadow: px 5px 20px black;
+}
+
+.kiss{
+  display: flex;
+  align-items: center;
+  place-items: center;
+  right: 50vw;
+}
+
+.kiss img{
+  border-radius:10px;
+  place-items: center;
+}
+
+.baya1{
+  display: flex;
+  min-height: 10vh;
+  left: 300vw;
+  width: 200px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.baya1:hover {
+  transform: scale(1.05);
+}
+        
+.baya1 img{
+  border-radius: 10px;
+  align-items: center;
+}
