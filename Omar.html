@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>omar Photos Gallery</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap" />
+  <style>
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    body {
+      background-color: #700909;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: white;
+    }
+    
+    .omar-image {
+      display: flex;
+      position: relative;
+      min-height: 10vh;
+      width: 200px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .omar-image:hover {
+      transform: scale(1.05);
+    }
+            
+    .omar-image img {
+      border-radius: 10px;
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: rgba(255, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      cursor: pointer;
+      display: none;
+      z-index: 2;
+    }
+
+    .omar-image:hover .delete-btn {
+      display: block;
+    }
+
+    /* Lightbox styles */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .lightbox.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .lightbox-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      animation: fadeIn 0.5s;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+    }
+
+    .upload-container {
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(0,0,0,0.2);
+      margin: 20px;
+      border-radius: 10px;
+    }
+
+    .upload-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    #image-upload {
+      display: none;
+    }
+
+    .upload-label {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .loading {
+      display: none;
+      color: white;
+      margin-top: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="upload-container">
+    <h3>Add More Photos to omar Gallery</h3>
+    <label for="image-upload" class="upload-label">
+      <i class="fas fa-camera"></i> Choose Photos
+    </label>
+    <input type="file" id="image-upload" accept="image/*" multiple>
+    <button class="upload-btn" id="upload-btn">Upload Photos</button>
+    <div class="loading" id="loading">
+      <i class="fas fa-spinner fa-spin"></i> Uploading...
+    </div>
+  </div>
+
+  <div class="gallery" id="gallery">
+    <!-- Default images will be loaded here -->
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="close-btn">&times;</span>
+    <img class="lightbox-img" id="lightbox-img">
+  </div>
+
+  <script>
+    // Your ImgBB API Key
+    const IMGBB_API_KEY = "0df1802b2570d954c983b4a31c8800a4";
+    
+    // DOM elements
+    const gallery = document.getElementById('gallery');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const closeBtn = document.querySelector('.close-btn');
+    const uploadBtn = document.getElementById('upload-btn');
+    const imageUpload = document.getElementById('image-upload');
+    const loadingIndicator = document.getElementById('loading');
+
+    // Default images
+    const defaultImages = [
+      'omar1.jpg', 'omar2.jpg', 'omar3.jpg',
+      'omar4.jpg', 'omar5.jpg', 'omar6.jpg'
+    ];
+
+    // Load images from localStorage or use defaults
+    function loadImages() {
+      const savedImages = JSON.parse(localStorage.getItem('omarGallery')) || defaultImages;
+      savedImages.forEach((imageSrc, index) => {
+        addImageToGallery(imageSrc);
+      });
+    }
+
+    // Add image to the gallery
+    function addImageToGallery(imageUrl) {
+      const imgContainer = document.createElement('div');
+      imgContainer.className = 'omar-image';
+      
+      const img = document.createElement('img');
+      img.src = imageUrl;
+      img.alt = 'omar Gallery Photo';
+      img.className = 'gallery-img';
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.innerHTML = '×';
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm("Delete this photo from your gallery?")) {
+          removeImageFromGallery(imageUrl, imgContainer);
+        }
+      });
+      
+      img.addEventListener('click', () => {
+        lightbox.classList.add('active');
+        lightboxImg.src = imageUrl;
+        lightboxImg.alt = img.alt;
+      });
+      
+      imgContainer.appendChild(img);
+      imgContainer.appendChild(deleteBtn);
+      gallery.appendChild(imgContainer);
+    }
+
+    // Remove image from gallery and storage
+    function removeImageFromGallery(imageUrl, element) {
+      // Remove from localStorage
+      const savedImages = JSON.parse(localStorage.getItem('omarGallery')) || [];
+      const updatedImages = savedImages.filter(img => img !== imageUrl);
+      localStorage.setItem('omarGallery', JSON.stringify(updatedImages));
+      
+      // Remove from DOM
+      element.remove();
+    }
+
+    // Upload image to ImgBB
+    async function uploadImage(file) {
+      loadingIndicator.style.display = 'block';
+      
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          // Save to localStorage
+          const savedImages = JSON.parse(localStorage.getItem('omarGallery')) || defaultImages;
+          savedImages.push(data.data.url);
+          localStorage.setItem('omarGallery', JSON.stringify(savedImages));
+          
+          // Add to gallery
+          addImageToGallery(data.data.url);
+          return true;
+        } else {
+          throw new Error(data.error.message || 'Upload failed');
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Upload failed: ' + error.message);
+        return false;
+      } finally {
+        loadingIndicator.style.display = 'none';
+      }
+    }
+
+    // Handle upload button click
+    uploadBtn.addEventListener('click', async () => {
+      const files = imageUpload.files;
+      if (files.length === 0) {
+        alert('Please select at least one image!');
+        return;
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        await uploadImage(files[i]);
+      }
+      
+      // Reset file input
+      imageUpload.value = '';
+    });
+
+    // Lightbox functionality
+    closeBtn.addEventListener('click', () => {
+      lightbox.classList.remove('active');
+    });
+
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.classList.remove('active');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+        lightbox.classList.remove('active');
+      }
+    });
+
+    // Initialize gallery on load
+    document.addEventListener('DOMContentLoaded', loadImages);
+  </script>
+</body>
+</html>
