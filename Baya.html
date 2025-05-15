@@ -2,17 +2,11 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baya Shared Gallery</title>
+  <title>Baya Photos Gallery</title>
   <meta charset="utf-8">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter&display=swap" />
   <style>
-    body {
-      background-color: #700909;
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      color: white;
-    }
     .gallery {
       display: flex;
       flex-wrap: wrap;
@@ -20,27 +14,40 @@
       justify-content: center;
       padding: 20px;
     }
+    
+    body {
+      background-color: #700909;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: white;
+    }
+    
     .baya-image {
+      display: flex;
       position: relative;
+      min-height: 10vh;
       width: 200px;
       cursor: pointer;
       transition: transform 0.3s;
     }
+
     .baya-image:hover {
       transform: scale(1.05);
     }
+            
     .baya-image img {
       border-radius: 10px;
       width: 100%;
       height: 200px;
       object-fit: cover;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+
     .delete-btn {
       position: absolute;
       top: 5px;
       right: 5px;
-      background-color: rgba(255,0,0,0.7);
+      background-color: rgba(255, 0, 0, 0.7);
       color: white;
       border: none;
       border-radius: 50%;
@@ -48,44 +55,13 @@
       height: 25px;
       cursor: pointer;
       display: none;
+      z-index: 2;
     }
+
     .baya-image:hover .delete-btn {
       display: block;
     }
-    .upload-container {
-      text-align: center;
-      padding: 20px;
-      background-color: rgba(0,0,0,0.2);
-      margin: 20px;
-      border-radius: 10px;
-    }
-    #image-upload {
-      display: none;
-    }
-    .upload-label {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      display: inline-block;
-      margin: 10px 0;
-    }
-    .upload-btn {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin: 5px;
-    }
-    .loading {
-      display: none;
-      color: white;
-      margin: 10px 0;
-    }
+
     .lightbox {
       display: none;
       position: fixed;
@@ -93,19 +69,26 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.9);
+      background-color: rgba(0, 0, 0, 0.9);
       z-index: 1000;
       justify-content: center;
       align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
+
     .lightbox.active {
       display: flex;
+      opacity: 1;
     }
+
     .lightbox-img {
       max-width: 90%;
       max-height: 90%;
       object-fit: contain;
+      animation: fadeIn 0.5s;
     }
+
     .close-btn {
       position: absolute;
       top: 20px;
@@ -114,224 +97,245 @@
       font-size: 40px;
       cursor: pointer;
     }
-    .status-message {
-      margin: 10px 0;
-      padding: 10px;
+
+    .upload-container {
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(0,0,0,0.2);
+      margin: 20px;
+      border-radius: 10px;
+    }
+
+    .upload-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
       border-radius: 5px;
-      background-color: rgba(0,0,0,0.5);
-    }
-    .share-buttons {
-      margin-top: 15px;
-    }
-    textarea {
-      width: 100%;
-      height: 60px;
+      cursor: pointer;
+      font-size: 16px;
       margin-top: 10px;
+    }
+
+    #image-upload {
+      display: none;
+    }
+
+    .upload-label {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
       border-radius: 5px;
-      padding: 8px;
+      cursor: pointer;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .loading {
+      display: none;
+      color: white;
+      margin-top: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
   </style>
 </head>
 <body>
   <div class="upload-container">
-    <h2>Baya Shared Gallery</h2>
+    <h3>Happy Birthday, Love! Our Shared Gallery 💖</h3>
     <label for="image-upload" class="upload-label">
       <i class="fas fa-camera"></i> Choose Photos
     </label>
     <input type="file" id="image-upload" accept="image/*" multiple>
     <button class="upload-btn" id="upload-btn">Upload Photos</button>
-    <div class="share-buttons">
-      <button class="upload-btn" id="export-btn">Export Gallery</button>
-      <button class="upload-btn" id="import-btn">Import Gallery</button>
-    </div>
-    <textarea id="import-export-data" placeholder="Paste exported gallery data here"></textarea>
     <div class="loading" id="loading">
       <i class="fas fa-spinner fa-spin"></i> Uploading...
-    </div>
-    <div class="status-message" id="status-message">
-      Loading gallery...
     </div>
   </div>
 
   <div class="gallery" id="gallery">
-    <!-- Images will appear here -->
+    <!-- Images will be loaded here -->
   </div>
 
   <div class="lightbox" id="lightbox">
-    <span class="close-btn">&times;</span>
+    <span class="close-btn">×</span>
     <img class="lightbox-img" id="lightbox-img">
   </div>
 
   <script>
-    // Configuration
+    // ImgBB API Key
     const IMGBB_API_KEY = "0df1802b2570d954c983b4a31c8800a4";
-    const DEFAULT_IMAGES = [
-      "baya1.jpg",
-      "baya2.jpg",
-      "baya3.jpg",
-      "baya4.jpg",
-      "baya5.jpg",
-      "baya6.jpg"
-    ];
+    // Google Sheets API Key and Sheet ID
+    const GOOGLE_API_KEY = "AIzaSyDQ-W4u5v_VbL6E7Iog5G0Mcx6wzCq2hh8";
+    const SHEET_ID = "1qLP31JZrgHmHud1oquWDj7vDovrUCKHYta_ZgAFIzA0";
+    const SHEET_NAME = "Sheet1";
 
     // DOM elements
     const gallery = document.getElementById('gallery');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
+    const closeBtn = document.querySelector('.close-btn');
     const uploadBtn = document.getElementById('upload-btn');
-    const exportBtn = document.getElementById('export-btn');
-    const importBtn = document.getElementById('import-btn');
-    const importExportData = document.getElementById('import-export-data');
     const imageUpload = document.getElementById('image-upload');
     const loadingIndicator = document.getElementById('loading');
-    const statusMessage = document.getElementById('status-message');
 
-    // Current images
-    let currentImages = [];
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      loadImages();
-      setupEventListeners();
-    });
-
-    // Load images from localStorage
-    function loadImages() {
-      const savedImages = JSON.parse(localStorage.getItem('bayaGallery'));
-      currentImages = savedImages || DEFAULT_IMAGES;
-      renderGallery();
-      updateStatus("Gallery loaded");
-    }
-
-    // Render all images
-    function renderGallery() {
-      gallery.innerHTML = '';
-      currentImages.forEach((imgSrc, index) => {
-        const imgContainer = document.createElement('div');
-        imgContainer.className = 'baya-image';
-        
-        const img = document.createElement('img');
-        img.src = imgSrc;
-        img.alt = `Baya photo ${index + 1}`;
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.innerHTML = '×';
-        deleteBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          deleteImage(index);
-        });
-        
-        img.addEventListener('click', () => {
-          lightboxImg.src = imgSrc;
-          lightbox.classList.add('active');
-        });
-        
-        imgContainer.appendChild(img);
-        imgContainer.appendChild(deleteBtn);
-        gallery.appendChild(imgContainer);
-      });
-    }
-
-    // Upload images to ImgBB
-    async function handleUpload() {
-      const files = imageUpload.files;
-      if (files.length === 0) {
-        updateStatus("Please select photos first", true);
-        return;
-      }
-
-      loadingIndicator.style.display = "block";
-      updateStatus("Uploading...");
-
+    // Load images from Google Sheet
+    async function loadImages() {
       try {
-        const uploadPromises = Array.from(files).map(file => uploadToImgBB(file));
-        const newUrls = await Promise.all(uploadPromises);
-        
-        currentImages = [...currentImages, ...newUrls];
-        localStorage.setItem('bayaGallery', JSON.stringify(currentImages));
-        renderGallery();
-        updateStatus(`Added ${newUrls.length} photos`);
-        imageUpload.value = '';
+        const response = await fetch(
+          `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A2:B?key=${GOOGLE_API_KEY}`
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch sheet data: ' + response.statusText);
+        }
+        const data = await response.json();
+        gallery.innerHTML = ''; // Clear gallery
+        if (data.values) {
+          data.values.forEach(row => {
+            const imageUrl = row[0]; // URL in column A
+            if (imageUrl) {
+              addImageToGallery(imageUrl);
+            }
+          });
+        }
       } catch (error) {
-        console.error("Upload failed:", error);
-        updateStatus("Upload failed: " + error.message, true);
-      } finally {
-        loadingIndicator.style.display = "none";
+        console.error('Error loading images:', error);
+        alert('Failed to load gallery. Please check your internet or try again later.');
       }
     }
 
-    // Upload to ImgBB
-    async function uploadToImgBB(file) {
+    // Add image to the gallery
+    function addImageToGallery(imageUrl) {
+      const imgContainer = document.createElement('div');
+      imgContainer.className = 'baya-image';
+      
+      const img = document.createElement('img');
+      img.src = imageUrl;
+      img.alt = 'Baya Gallery Photo';
+      img.className = 'gallery-img';
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.innerHTML = '×';
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm("Delete this photo from the gallery? You'll need to remove it manually from the Google Sheet.")) {
+          removeImageFromGallery(imageUrl, imgContainer);
+        }
+      });
+      
+      img.addEventListener('click', () => {
+        lightbox.classList.add('active');
+        lightboxImg.src = imageUrl;
+        lightboxImg.alt = img.alt;
+      });
+      
+      imgContainer.appendChild(img);
+      imgContainer.appendChild(deleteBtn);
+      gallery.appendChild(imgContainer);
+    }
+
+    // Remove image from display (manual sheet deletion)
+    function removeImageFromGallery(imageUrl, element) {
+      element.remove();
+      alert(`Please open the Google Sheet at https://docs.google.com/spreadsheets/d/${SHEET_ID} and delete the row with URL: ${imageUrl}`);
+    }
+
+    // Upload image to ImgBB and append to Google Sheet
+    async function uploadImage(file) {
+      loadingIndicator.style.display = 'block';
+      
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch(
-        `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
-        { method: 'POST', body: formData }
-      );
-
-      const data = await response.json();
-      if (!data.success) throw new Error(data.error?.message || "ImgBB upload failed");
-      return data.data.url;
-    }
-
-    // Delete image
-    function deleteImage(index) {
-      if (!confirm("Delete this photo?")) return;
-      currentImages.splice(index, 1);
-      localStorage.setItem('bayaGallery', JSON.stringify(currentImages));
-      renderGallery();
-      updateStatus("Photo deleted");
-    }
-
-    // Export gallery data
-    function exportGallery() {
-      importExportData.value = JSON.stringify(currentImages, null, 2);
-      updateStatus("Gallery data copied to clipboard");
-      importExportData.select();
-      document.execCommand('copy');
-    }
-
-    // Import gallery data
-    function importGallery() {
       try {
-        const importedData = JSON.parse(importExportData.value);
-        if (!Array.isArray(importedData)) throw new Error("Invalid format");
-        
-        currentImages = importedData;
-        localStorage.setItem('bayaGallery', JSON.stringify(currentImages));
-        renderGallery();
-        updateStatus("Gallery imported successfully");
+        // Upload to ImgBB
+        const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: 'POST',
+          body: formData
+        });
+        const imgbbData = await imgbbResponse.json();
+        if (!imgbbData.success) {
+          throw new Error(imgbbData.error.message || 'Upload failed');
+        }
+
+        // Append to Google Sheet
+        const timestamp = new Date().toISOString();
+        const values = [[imgbbData.data.url, timestamp]];
+        const appendResponse = await fetch(
+          `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A:B:append?valueInputOption=RAW&key=${GOOGLE_API_KEY}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ values })
+          }
+        );
+        if (!appendResponse.ok) {
+          throw new Error('Failed to append to Google Sheet: ' + appendResponse.statusText);
+        }
+
+        // Reload gallery
+        await loadImages();
+        return true;
       } catch (error) {
-        updateStatus("Import failed: " + error.message, true);
+        console.error('Upload error:', error);
+        alert('Upload failed: ' + error.message);
+        return false;
+      } finally {
+        loadingIndicator.style.display = 'none';
       }
     }
 
-    // Event listeners
-    function setupEventListeners() {
-      uploadBtn.addEventListener('click', handleUpload);
-      exportBtn.addEventListener('click', exportGallery);
-      importBtn.addEventListener('click', importGallery);
-      
-      document.querySelector('.close-btn').addEventListener('click', () => {
-        lightbox.classList.remove('active');
-      });
-      
-      lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) lightbox.classList.remove('active');
-      });
-      
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') lightbox.classList.remove('active');
-      });
-    }
+    // Handle upload button click
+    uploadBtn.addEventListener('click', async () => {
+      // Password prompt (remove if not needed)
+      const password = prompt('Enter password to upload:');
+      if (password !== 'baya2025') {
+        alert('Incorrect password!');
+        return;
+      }
 
-    // Update status message
-    function updateStatus(message, isError = false) {
-      statusMessage.textContent = message;
-      statusMessage.style.color = isError ? '#ff6b6b' : 'white';
-    }
+      const files = imageUpload.files;
+      if (files.length === 0) {
+        alert('Please select at least one image!');
+        return;
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        await uploadImage(files[i]);
+      }
+      
+      // Reset file input
+      imageUpload.value = '';
+    });
+
+    // Lightbox functionality
+    closeBtn.addEventListener('click', () => {
+      lightbox.classList.remove('active');
+    });
+
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.classList.remove('active');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+        lightbox.classList.remove('active');
+      }
+    });
+
+    // Initialize gallery on load
+    document.addEventListener('DOMContentLoaded', loadImages);
+
+    // Poll for updates every 10 seconds
+    setInterval(loadImages, 10000);
   </script>
 </body>
 </html>
