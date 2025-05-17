@@ -143,7 +143,7 @@
 </head>
 <body>
   <div class="upload-container">
-    <h3>Bayoutiiiiiii Gallery</h3>
+    <h3>Happy Birthday, Love! Our Shared Gallery 💖</h3>
     <label for="image-upload" class="upload-label">
       <i class="fas fa-camera"></i> Choose Photos
     </label>
@@ -164,11 +164,13 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha1/0.6.0/sha1.min.js"></script>
   <script>
     // Cloudinary Configuration
-    const CLOUD_NAME = "dhhovgejz"; // From Cloudinary Dashboard
-    const API_KEY = "998526889732266"; // From Cloudinary Dashboard
-    const UPLOAD_PRESET = "baya_upload"; // From Upload Presets
+    const CLOUD_NAME = "dhhovgejz";
+    const API_KEY = "998526889732266";
+    const API_SECRET = "aYhXiNdP80PvBiRUz8fxudeZl-0";
+    const UPLOAD_PRESET = "baya_upload";
 
     // DOM elements
     const gallery = document.getElementById('gallery');
@@ -179,23 +181,36 @@
     const imageUpload = document.getElementById('image-upload');
     const loadingIndicator = document.getElementById('loading');
 
+    // Generate signature for Admin API
+    function generateSignature(params) {
+      const sortedParams = Object.keys(params).sort().map(key => `${key}=${params[key]}`).join('&');
+      return sha1(sortedParams + API_SECRET);
+    }
+
     // Load images from Cloudinary
     async function loadImages() {
       try {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const params = { timestamp, max_results: 100 };
+        const signature = generateSignature(params);
         const response = await axios.get(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/image`, {
           params: {
             api_key: API_KEY,
+            timestamp,
+            signature,
             max_results: 100
           }
         });
         gallery.innerHTML = '';
-        response.data.resources.forEach(image => {
-          const url = image.secure_url;
-          addImageToGallery(url);
-        });
+        if (response.data.resources) {
+          response.data.resources.forEach(image => {
+            const url = image.secure_url;
+            addImageToGallery(url);
+          });
+        }
       } catch (error) {
-        console.error('Error loading images:', error);
-        alert('Failed to load gallery. Please try again.');
+        console.error('Load images error:', error.response ? error.response.data : error.message);
+        alert('Failed to load gallery: ' + (error.response ? error.response.data.message : error.message));
       }
     }
 
@@ -230,16 +245,27 @@
       gallery.appendChild(imgContainer);
     }
 
-    // Delete image from Cloudinary (requires signed request, simplified here)
+    // Delete image from Cloudinary
     async function deleteImage(url, imgContainer) {
       try {
-        // Note: Deletion requires a signed request or admin API setup.
-        // For simplicity, just remove from display. Contact me post-birthday for full deletion.
-        imgContainer.remove();
-        alert('Photo removed from display. Contact support for permanent deletion.');
+        const publicId = url.split('/').slice(-2).join('/').split('.')[0];
+        const timestamp = Math.floor(Date.now() / 1000);
+        const params = { timestamp, public_id: publicId };
+        const signature = generateSignature(params);
+        const response = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/destroy`, {
+          public_id: publicId,
+          api_key: API_KEY,
+          timestamp,
+          signature
+        });
+        if (response.data.result === 'ok') {
+          imgContainer.remove();
+        } else {
+          throw new Error('Failed to delete image');
+        }
       } catch (error) {
-        console.error('Delete error:', error);
-        alert('Failed to delete photo: ' + error.message);
+        console.error('Delete error:', error.response ? error.response.data : error.message);
+        alert('Failed to delete photo: ' + (error.response ? error.response.data.message : error.message));
       }
     }
 
@@ -254,12 +280,13 @@
 
       try {
         const response = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, formData);
+        console.log('Upload response:', response.data);
         const url = response.data.secure_url;
         addImageToGallery(url);
         return url;
       } catch (error) {
-        console.error('Upload error:', error);
-        throw error;
+        console.error('Upload error:', error.response ? error.response.data : error.message);
+        throw new Error(error.response ? error.response.data.message : error.message);
       } finally {
         loadingIndicator.style.display = 'none';
       }
@@ -308,8 +335,11 @@
       }
     });
 
-    // Initialize gallery on load
-    document.addEventListener('DOMContentLoaded', () => loadImages());
+    // Initialize gallery and poll for updates
+    document.addEventListener('DOMContentLoaded', () => {
+      loadImages();
+      setInterval(loadImages, 10000); // Poll every 10 seconds
+    });
   </script>
 </body>
 </html>
